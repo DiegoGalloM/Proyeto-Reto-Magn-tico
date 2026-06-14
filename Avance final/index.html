@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Confinamiento Electromagnético — Reto</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ====== Paleta (tomada de la imagen) ====== */
+  :root{
+    --purple:#5B1A47;
+    --crimson:#97123F;
+    --red:#D10A40;
+    --orange:#FF5230;
+    --yellow:#FFBF00;
+
+    --bg:#2a0c22;            /* fondo aun mas oscuro que el purpura */
+    --bg-2:#3a1230;
+    --panel:rgba(91,26,71,.45);
+    --panel-line:rgba(255,191,0,.18);
+    --text:#fdeef6;
+    --muted:#e9c7d8;
+
+    --display:'Space Grotesk',system-ui,sans-serif;
+    --body:'Inter',system-ui,sans-serif;
+    --radius:18px;
+    --maxw:1100px;
+  }
+
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    font-family:var(--body);
+    color:var(--text);
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(255,82,48,.25), transparent 60%),
+      radial-gradient(1000px 500px at -10% 20%, rgba(151,18,63,.35), transparent 55%),
+      linear-gradient(160deg,var(--bg),var(--bg-2));
+    background-attachment:fixed;
+    line-height:1.65;
+  }
+
+  /* ====== Barra de navegacion ====== */
+  header.nav{
+    position:sticky;top:0;z-index:50;
+    backdrop-filter:blur(10px);
+    background:rgba(42,12,34,.72);
+    border-bottom:1px solid var(--panel-line);
+  }
+  .nav-inner{
+    max-width:var(--maxw);margin:0 auto;padding:.8rem 1.2rem;
+    display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;
+  }
+  .brand{display:flex;align-items:center;gap:.6rem;font-family:var(--display);font-weight:700;letter-spacing:.3px}
+  .brand .dot{
+    width:14px;height:14px;border-radius:50%;
+    background:radial-gradient(circle at 30% 30%,var(--yellow),var(--orange) 60%,var(--red));
+    box-shadow:0 0 12px var(--orange),0 0 26px var(--red);
+  }
+  nav a{
+    color:var(--muted);text-decoration:none;font-size:.92rem;font-weight:500;
+    padding:.35rem .6rem;border-radius:8px;transition:.2s;
+  }
+  nav a:hover{color:#fff;background:rgba(255,191,0,.12)}
+
+  /* ====== Contenedores / secciones ====== */
+  main{max-width:var(--maxw);margin:0 auto;padding:0 1.2rem}
+  section{padding:4.5rem 0;scroll-margin-top:80px}
+  .eyebrow{
+    font-family:var(--display);text-transform:uppercase;letter-spacing:3px;
+    font-size:.78rem;color:var(--yellow);margin:0 0 .4rem;
+  }
+  h2.section-title{
+    font-family:var(--display);font-size:clamp(1.6rem,3.5vw,2.4rem);
+    margin:0 0 1.6rem;line-height:1.1;
+  }
+  h2.section-title::after{
+    content:"";display:block;width:70px;height:4px;margin-top:.7rem;border-radius:4px;
+    background:linear-gradient(90deg,var(--red),var(--orange),var(--yellow));
+  }
+
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--panel-line);
+    border-radius:var(--radius);
+    padding:1.6rem;
+    backdrop-filter:blur(6px);
+  }
+
+  /* ====== Hero ====== */
+  .hero{
+    position:relative;overflow:hidden;
+    padding:5.5rem 1.2rem 4rem;
+    text-align:center;
+  }
+  .hero h1{
+    font-family:var(--display);font-weight:700;
+    font-size:clamp(2.2rem,6vw,4.2rem);line-height:1.02;margin:.2rem 0 .6rem;
+    background:linear-gradient(90deg,#fff, var(--yellow) 45%, var(--orange) 75%, var(--red));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .hero p.lead{max-width:620px;margin:0 auto 1.6rem;color:var(--muted);font-size:1.08rem}
+  .hero .team-name{
+    font-family:var(--display);letter-spacing:2px;text-transform:uppercase;
+    color:var(--yellow);font-size:.9rem;margin-bottom:.4rem;
+  }
+  .cta-row{display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap;margin-top:1.4rem}
+  .btn{
+    font-family:var(--display);font-weight:500;font-size:.95rem;
+    padding:.7rem 1.3rem;border-radius:999px;text-decoration:none;border:1px solid transparent;
+    transition:.2s;display:inline-flex;align-items:center;gap:.5rem;
+  }
+  .btn-primary{background:linear-gradient(90deg,var(--orange),var(--red));color:#fff;box-shadow:0 8px 24px rgba(209,10,64,.35)}
+  .btn-primary:hover{transform:translateY(-2px)}
+  .btn-ghost{border-color:var(--panel-line);color:var(--text)}
+  .btn-ghost:hover{background:rgba(255,191,0,.1)}
+
+  /* Toro + particula animada (decorativo, CSS puro) */
+  .reactor{
+    position:relative;width:230px;height:230px;margin:0 auto 1.4rem;
+  }
+  .torus{
+    position:absolute;inset:0;border-radius:50%;
+    border:26px solid transparent;
+    background:
+      linear-gradient(var(--bg),var(--bg)) padding-box,
+      conic-gradient(from 0deg,var(--purple),var(--crimson),var(--red),var(--orange),var(--yellow),var(--orange),var(--red),var(--crimson),var(--purple)) border-box;
+    box-shadow:0 0 40px rgba(255,82,48,.25),inset 0 0 30px rgba(0,0,0,.4);
+    animation:spin 14s linear infinite;
+  }
+  .torus::after{
+    content:"";position:absolute;inset:18px;border-radius:50%;
+    border:1px dashed rgba(255,191,0,.4);
+  }
+  .orbit{position:absolute;inset:0;animation:spin 2.6s linear infinite}
+  .particle{
+    position:absolute;top:50%;left:50%;width:16px;height:16px;border-radius:50%;
+    transform:translate(-50%,-50%) translateX(92px);
+    background:radial-gradient(circle at 30% 30%,#fff,var(--yellow) 50%,var(--orange));
+    box-shadow:0 0 14px var(--yellow),0 0 30px var(--orange);
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* ====== Video ====== */
+  .video-wrap{
+    position:relative;width:100%;aspect-ratio:16/9;border-radius:var(--radius);overflow:hidden;
+    border:1px solid var(--panel-line);background:#190712;
+  }
+  .video-wrap iframe{width:100%;height:100%;border:0}
+  .video-placeholder{
+    position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.6rem;
+    color:var(--muted);text-align:center;padding:1rem;
+    background:repeating-linear-gradient(45deg,rgba(151,18,63,.18) 0 16px,rgba(91,26,71,.18) 16px 32px);
+  }
+  .video-placeholder .play{
+    width:64px;height:64px;border-radius:50%;display:grid;place-items:center;
+    background:linear-gradient(90deg,var(--orange),var(--red));box-shadow:0 0 24px var(--red);
+  }
+  .video-placeholder .play::before{content:"";border-left:18px solid #fff;border-top:11px solid transparent;border-bottom:11px solid transparent;margin-left:5px}
+
+  /* ====== Perfiles ====== */
+  .grid{display:grid;gap:1.3rem}
+  .grid.profiles{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+  .profile{display:flex;flex-direction:column;align-items:center;text-align:center;transition:.25s}
+  .profile:hover{transform:translateY(-4px);border-color:rgba(255,191,0,.45)}
+  .avatar{
+    width:120px;height:120px;border-radius:50%;object-fit:cover;margin-bottom:1rem;
+    border:3px solid transparent;
+    background:
+      linear-gradient(var(--bg),var(--bg)) padding-box,
+      linear-gradient(135deg,var(--yellow),var(--orange),var(--red)) border-box;
+    display:grid;place-items:center;color:var(--muted);font-size:.8rem;
+  }
+  .profile h3{font-family:var(--display);margin:.1rem 0 .15rem;font-size:1.15rem}
+  .profile .career{color:var(--yellow);font-size:.85rem;font-weight:600;margin-bottom:.7rem}
+  .profile .bio{color:var(--muted);font-size:.92rem}
+  .linkedin{
+    margin-top:1rem;font-size:.85rem;font-weight:600;text-decoration:none;color:var(--text);
+    display:inline-flex;align-items:center;gap:.4rem;padding:.45rem .9rem;border-radius:999px;
+    border:1px solid var(--panel-line);transition:.2s;
+  }
+  .linkedin:hover{background:rgba(255,191,0,.12)}
+  .linkedin svg{width:16px;height:16px;fill:var(--yellow)}
+
+  /* ====== Proceso (timeline) ====== */
+  .timeline{position:relative;margin-top:1rem}
+  .timeline::before{
+    content:"";position:absolute;left:18px;top:8px;bottom:8px;width:3px;border-radius:3px;
+    background:linear-gradient(var(--red),var(--orange),var(--yellow));
+  }
+  .step{position:relative;padding:0 0 1.8rem 3.4rem}
+  .step:last-child{padding-bottom:0}
+  .step .num{
+    position:absolute;left:0;top:0;width:38px;height:38px;border-radius:50%;
+    display:grid;place-items:center;font-family:var(--display);font-weight:700;color:#fff;
+    background:linear-gradient(135deg,var(--orange),var(--red));box-shadow:0 0 16px rgba(209,10,64,.5);
+  }
+  .step h3{font-family:var(--display);margin:.2rem 0 .3rem;font-size:1.12rem}
+  .step .tag{font-size:.72rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--yellow)}
+  .step p{color:var(--muted);margin:.3rem 0 0}
+
+  .phases{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin-top:2rem}
+  .phase{border-left:4px solid var(--orange)}
+  .phase h4{font-family:var(--display);margin:.1rem 0 .4rem}
+  .phase span.k{color:var(--yellow);font-size:.8rem;font-weight:600;letter-spacing:1px}
+
+  /* ====== Metacognicion ====== */
+  .meta-card{margin-bottom:1.2rem;border-left:4px solid var(--yellow)}
+  .meta-card h3{font-family:var(--display);margin:.1rem 0 .1rem;font-size:1.1rem}
+  .meta-card .who{color:var(--yellow);font-size:.82rem;font-weight:600;margin-bottom:.6rem}
+  .meta-card p{color:var(--muted);margin:0}
+  .order-note{font-size:.82rem;color:var(--muted);opacity:.8;margin-bottom:1.2rem}
+
+  /* ====== Footer ====== */
+  footer{
+    border-top:1px solid var(--panel-line);margin-top:3rem;
+    padding:2rem 1.2rem;text-align:center;color:var(--muted);font-size:.88rem;
+  }
+  .palette{display:flex;gap:6px;justify-content:center;margin:1rem 0}
+  .palette span{width:34px;height:14px;border-radius:4px}
+
+  .hint{color:var(--orange);font-size:.8rem;font-weight:600}
+</style>
+</head>
+<body>
+
+<!-- ============ NAV ============ -->
+<header class="nav">
+  <div class="nav-inner">
+    <div class="brand"><span class="dot"></span> Confinamiento EM</div>
+    <nav>
+      <a href="#equipo">Equipo</a>
+      <a href="#perfiles">Perfiles</a>
+      <a href="#proceso">Proceso</a>
+      <a href="#metacognicion">Metacognición</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="inicio">
+  <div class="reactor" aria-hidden="true">
+    <div class="torus"></div>
+    <div class="orbit"><div class="particle"></div></div>
+  </div>
+  <div class="team-name">Equipo 1 · Grupo 302 </div>
+  <h1>Confinamiento de partículas<br>en campos electromagnéticos</h1>
+  <p class="lead">
+    Simulación y control de una partícula cargada atrapada por campos magnéticos:
+    de la fuerza de Lorentz a un reactor tipo tokamak, integrando física, métodos
+    numéricos y control activo.
+  </p>
+  <div class="cta-row">
+    <a href="#equipo" class="btn btn-primary">Ver el reto ▸</a>
+    <a href="#perfiles" class="btn btn-ghost">Conoce al equipo</a>
+  </div>
+</section>
+
+<main>
+
+  <!-- ============ 1. PRESENTACION DEL EQUIPO ============ -->
+  <section id="equipo">
+    <p class="eyebrow">01 — Presentación</p>
+    <h2 class="section-title">El equipo y su simulación</h2>
+
+    <div class="grid" style="grid-template-columns:1fr;gap:1.6rem">
+      <div class="panel">
+        <h3 style="font-family:var(--display);margin-top:0">Equipo 1:</h3>
+        <p style="color:var(--muted);margin-bottom:.4rem">
+          Integrantes:
+        </p>
+        <ul style="color:var(--muted);margin:0;padding-left:1.2rem">
+          <li>Diego Esteban Gallo Mora | A00843874</li>
+          <li>Arantza Nahomi Ramos Sánchez | A00843709</li>
+          <li>Santiago Arias Paul | A00845104</li>
+          <li>Irian Nallelys García Barquero  | A01826551</li>
+        </ul>
+        <p style="color:var(--muted);margin-top:1rem">
+          Curso: Modelación de Sistemas Electromagnéticos · Reto integrador
+          
+        </p>
+      </div>
+
+      <div>
+        <p class="eyebrow" style="margin-bottom:.6rem">Video · Partícula confinada (YouTube)</p>
+        <div class="video-wrap">
+          <iframe
+            width="560"
+            height="315"
+            src="https://www.youtube.com/embed/mxaoyrCq8IM?si=76XSdFAI5xMN2bKG"
+            title="YouTube video player"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerpolicy="strict-origin-when-cross-origin"
+            allowfullscreen></iframe>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 2. PERFILES PROFESIONALES ============ -->
+  <section id="perfiles">
+    <p class="eyebrow">02 — Perfiles profesionales</p>
+    <h2 class="section-title">¿Quiénes confinan la partícula?</h2>
+
+    <div class="grid profiles">
+
+      <!-- ---- PERFIL (duplica este bloque por integrante) ---- -->
+      <article class="panel profile">
+        <!-- Reemplaza src por la ruta de la foto, ej: img/integrante1.jpg -->
+        <img class="avatar" src="fotos/Diego.jpeg" alt="Foto de Diego Esteban Gallo Mora">
+        <h3>Diego Esteban Gallo Mora</h3>
+        <div class="career">ITC</div>
+        <p class="bio">
+          Diego es estudiante de ITC en el Tec de Monterrey, con interés en desarrollo de software y programación competitiva. A lo largo de su formación ha desarrollado habilidades en modelado algorítmico y visualización de sistemas dinámicos complejos. 
+          En este reto integró su background computacional con física electromagnética para simular el confinamiento de partículas usando las leyes de Coulomb, Larmor y Biot-Savart.
+        </p>
+        <a class="linkedin" href="https://linkedin.com/in/DiegoGalloM" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.22 8h4.56v14H.22V8zm7.5 0h4.37v1.92h.06c.61-1.15 2.1-2.36 4.32-2.36 4.62 0 5.47 3.04 5.47 7v8.44h-4.56v-7.48c0-1.78-.03-4.07-2.48-4.07-2.48 0-2.86 1.94-2.86 3.94V22H7.72V8z"/></svg>
+          LinkedIn
+        </a>
+      </article>
+
+      <article class="panel profile">
+        <div class="avatar">[ foto ]</div>
+        <h3>Arantza Nahomi Ramos Sánchez</h3>
+        <div class="career">IRS</div>
+        <p class="bio">
+          Arantza es estudiante de IRS en el Tec de Monterrey, con interés en investigación y desarrollo en el área de física aplicada. Su experiencia en programación y modelado matemático le permite abordar problemas complejos con enfoques innovadores. En este reto, contribuyó con su conocimiento en electromagnetismo y simulación numérica.
+        </p>
+        <a class="linkedin" href="[URL_LINKEDIN_2]" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.22 8h4.56v14H.22V8zm7.5 0h4.37v1.92h.06c.61-1.15 2.1-2.36 4.32-2.36 4.62 0 5.47 3.04 5.47 7v8.44h-4.56v-7.48c0-1.78-.03-4.07-2.48-4.07-2.48 0-2.86 1.94-2.86 3.94V22H7.72V8z"/></svg>
+          LinkedIn
+        </a>
+      </article>
+
+      <article class="panel profile">
+        <div class="avatar">[ foto ]</div>
+        <h3>Santiago Arias Paul</h3>
+        <div class="career">ITC</div>
+        <p class="bio">
+          Santiago es estudiante de ITC en el Tec de Monterrey, con interés en ingeniería de software y desarrollo de aplicaciones. Su experiencia en programación y análisis numérico le permite abordar problemas técnicos con enfoques innovadores. En este reto, aportó su conocimiento en simulación computacional y optimización.
+        </p>
+        <a class="linkedin" href="[URL_LINKEDIN_3]" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.22 8h4.56v14H.22V8zm7.5 0h4.37v1.92h.06c.61-1.15 2.1-2.36 4.32-2.36 4.62 0 5.47 3.04 5.47 7v8.44h-4.56v-7.48c0-1.78-.03-4.07-2.48-4.07-2.48 0-2.86 1.94-2.86 3.94V22H7.72V8z"/></svg>
+          LinkedIn
+        </a>
+      </article>
+
+      <article class="panel profile">
+        <div class="avatar">[ foto ]</div>
+        <h3>Irian Nallelys García Barquero</h3>
+        <div class="career">IRS</div>
+        <p class="bio">
+          Irian es estudiante de IRS en el Tec de Monterrey, con interés en investigación y desarrollo en el área de física aplicada. Su experiencia en programación y modelado matemático le permite abordar problemas complejos con enfoques innovadores. En este reto, contribuyó con su conocimiento en electromagnetismo y simulación numérica.
+        </p>
+        <a class="linkedin" href="[URL_LINKEDIN_4]" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.22 8h4.56v14H.22V8zm7.5 0h4.37v1.92h.06c.61-1.15 2.1-2.36 4.32-2.36 4.62 0 5.47 3.04 5.47 7v8.44h-4.56v-7.48c0-1.78-.03-4.07-2.48-4.07-2.48 0-2.86 1.94-2.86 3.94V22H7.72V8z"/></svg>
+          LinkedIn
+        </a>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ============ 3. PROCESO DE SOLUCION ============ -->
+  <section id="proceso">
+    <p class="eyebrow">03 — Proceso de solución</p>
+    <h2 class="section-title">Cómo resolvimos el reto</h2>
+
+    <div class="panel">
+      <p style="margin-top:0;color:var(--muted)">
+        El reto se abordó con un enfoque de ingeniería incremental: cada avance
+        validó una pieza de física antes de añadir complejidad, de modo que el
+        código final acopla tres fases de confinamiento sobre una misma base
+        numérica confiable.
+      </p>
+
+      <div class="timeline">
+        <div class="step">
+          <div class="num">1</div>
+          <span class="tag">Modelado físico</span>
+          <h3>Fuerza de Lorentz y movimiento de la partícula</h3>
+          <p>
+            Partimos de la ecuación <em>F = q(v × B)</em>. Implementamos y comparamos
+            integradores (Euler-Cromer y Boris) para una partícula cargada en un campo
+            magnético uniforme, verificando que el radio de giro y la energía se
+            comportaran físicamente.
+          </p>
+        </div>
+        <div class="step">
+          <div class="num">2</div>
+          <span class="tag">Campos realistas</span>
+          <h3>Campo de solenoide / espiras (Biot-Savart)</h3>
+          <p>
+            Sustituimos el campo idealizado por el de bobinas reales calculado con
+            Biot-Savart, y estudiamos cómo la geometría del solenoide moldea la
+            trayectoria y atrapa a la partícula a lo largo del eje.
+          </p>
+        </div>
+        <div class="step">
+          <div class="num">3</div>
+          <span class="tag">Control + refinamiento numérico</span>
+          <h3>Confinamiento con control activo y tokamak 3D</h3>
+          <p>
+            Construimos un anillo de cables con corrientes alternadas y un
+            <strong>control sectorizado</strong>: cuando la partícula cruza un radio
+            límite, tres cables suben su corriente de rescate para empujarla de vuelta.
+            Refactorizamos la física en funciones, añadimos Euler / RK2 / RK4 y un
+            análisis de energía. Finalmente extendimos todo a un reactor tipo
+            <strong>tokamak</strong> en 3D con campo toroidal + poloidal y control de bobinas.
+          </p>
+        </div>
+        <div class="step">
+          <div class="num">4</div>
+          <span class="tag">Validación</span>
+          <h3>Verificación, métricas y visualización</h3>
+          <p>
+            Comprobamos conservación de energía (el campo magnético no realiza
+            trabajo: cualquier deriva es error numérico), medimos el <strong>porcentaje
+            de tiempo</strong> que el sistema necesitó la corriente de rescate y generamos
+            gráficas y animaciones GIF donde se aprecia el parpadeo de los cables al
+            activarse el control.
+          </p>
+        </div>
+      </div>
+
+      <!-- Acople de las tres fases -->
+      <h3 style="font-family:var(--display);margin:2.4rem 0 .4rem">Acople de las tres fases de confinamiento</h3>
+      <p style="color:var(--muted);margin-top:0">
+        Las tres fases comparten el mismo motor numérico (integrador RK4 sobre el
+        vector de estado) y la misma función de aceleración; lo que cambia es la
+        fuente del campo:
+      </p>
+      <div class="phases">
+        <div class="panel phase">
+          <span class="k">FASE I</span>
+          <h4>Campo uniforme</h4>
+          <p style="color:var(--muted);margin:0;font-size:.92rem">Lorentz puro: giro ciclotrónico y validación de integradores.</p>
+        </div>
+        <div class="panel phase">
+          <span class="k">FASE II</span>
+          <h4>Solenoide / espiras</h4>
+          <p style="color:var(--muted);margin:0;font-size:.92rem">Campo de bobinas reales (Biot-Savart) confinando a lo largo del eje.</p>
+        </div>
+        <div class="panel phase">
+          <span class="k">FASE III</span>
+          <h4>Control activo + tokamak</h4>
+          <p style="color:var(--muted);margin:0;font-size:.92rem">Corriente de rescate sectorizada y campo toroidal-poloidal en 3D.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 4. METACOGNICION ============ -->
+  <section id="metacognicion">
+    <p class="eyebrow">04 — Metacognición individual</p>
+    <h2 class="section-title">Lo que aprendimos</h2>
+    <p class="order-note">Orden alfabético por primer apellido.</p>
+
+    <!-- Ordena estos bloques alfabeticamente por el primer apellido del autor -->
+    <article class="panel meta-card">
+      <h3>Santiago Arias Paul</h3>
+      <div class="who">Reflexión personal</div>
+      <p>
+        [Párrafo reflexivo: ¿qué habilidades desarrollaste (física, programación,
+        métodos numéricos, trabajo en equipo)? ¿Qué fue lo que más te impactó o
+        cuál fue tu parte favorita del reto? ¿Qué te llevas para tu formación como
+        ingeniero/a?]
+      </p>
+    </article>
+
+    <article class="panel meta-card">
+      <h3>Irian Nallelys García Barquero</h3>
+      <div class="who">Reflexión personal</div>
+      <p>[Párrafo reflexivo individual.]</p>
+    </article>
+
+    <article class="panel meta-card">
+      <h3>Diego Esteban Gallo Mora</h3>
+      <div class="who">Reflexión personal</div>
+      <p>
+        Durante este bloque desarrollé habilidades concretas en simulación
+        numérica, en particular la implementación de integradores Runge-Kutta 4
+        para resolver ecuaciones de movimiento bajo la fuerza de Lorentz.
+        Lo que más me impactó fue entender el Teorema de Earnshaw de forma
+        práctica: ver en la simulación por qué el confinamiento eléctrico puro
+        siempre falla y cómo el campo magnético corrige esa inestabilidad de
+        manera dinámica, no estática.
+        Mi parte favorita del reto fue construir el sistema de confinamiento
+        híbrido y visualizar cómo el control sectorizado activo rescata la
+        partícula en tiempo real, conectando directamente la teoría de la ley de
+        Biot-Savart con un resultado visual tangible.
+      </p>
+    </article>
+
+    <article class="panel meta-card">
+      <h3>Arantza Nahomi Ramos Sánchez</h3>
+      <div class="who">Reflexión personal</div>
+      <p>[Párrafo reflexivo individual.]</p>
+    </article>
+  </section>
+
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="palette" aria-hidden="true">
+    <span style="background:#5B1A47"></span>
+    <span style="background:#97123F"></span>
+    <span style="background:#D10A40"></span>
+    <span style="background:#FF5230"></span>
+    <span style="background:#FFBF00"></span>
+  </div>
+  <div>Reto — Modelación de Sistemas Electromagnéticos · 2026</div>
+  <div style="opacity:.7;margin-top:.3rem">Equipo 1 - Grupo 302  · Confinamiento de partículas cargadas</div>
+</footer>
+
+</body>
+</html>
